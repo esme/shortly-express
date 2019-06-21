@@ -42,7 +42,15 @@ class Users extends Model {
       password: utils.createHash(password, salt)
     };
 
+    console.log(newUser);
+
     return super.create.call(this, newUser);
+  }
+
+  // create a get method to get salt
+  get(username) {
+    console.log(username)
+    return super.get.call(this, username);
   }
 }
 

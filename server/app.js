@@ -77,6 +77,66 @@ app.post('/links',
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.get('/signup', 
+(req, res) => {
+  res.render('signup');
+});
+
+app.get('/login', 
+(req, res) => {
+  res.render('login');
+});
+
+app.post('/signup', 
+(req, res, next) => {
+  let attempted = req.body.password;
+  models.Users.get({ username: req.body.username })
+    .then((data) => {
+      let password = data.password;
+      let salt = data.salt;
+      return models.Users.compare(attempted, password, salt)
+    })
+    .then((data) => {
+      if(data) {
+        res.set('location', '/signup')
+      } else {
+        models.Users.create(req.body)
+          .then(res.set('location', '/'))
+          .then(res.status(200).send())
+          .error(error => {
+            console.log('did this post request erro');
+            res.status(404).send(error);
+          });
+      }
+    })
+});
+
+app.post('/login', 
+(req, res, next) => {
+  let attempted = req.body.password;
+  models.Users.get({ username: req.body.username })
+    .then((data) => {
+      // console.log('test', data)
+      let password = data.password;
+      let salt = data.salt;
+      // console.log(attempted, password, salt);
+      return models.Users.compare(attempted, password, salt)
+    })
+    .then((data) => {
+      if(data) {
+        res.set('location', '/')
+        // res.redirect('/')
+      } else {
+        res.set('location', '/login')
+        // res.redirect('/login')
+      }
+    })
+    .error(error => {
+      res.status(404).send(error);
+    })
+});
+
+
 
 
 
