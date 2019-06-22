@@ -89,20 +89,24 @@ app.get('/login',
 
 app.post('/signup', 
 (req, res, next) => {
-  let attempted = req.body.password;
+  // models.Users.create(req.body)
+  //   .then(res.set('location', '/'))
+  //   .then(res.status(200).send())
+  //   .error(error => {
+  //     console.log('did this post request erro');
+  //     res.status(404).send(error);
+  //   });
   models.Users.get({ username: req.body.username })
     .then((data) => {
-      let password = data.password;
-      let salt = data.salt;
-      return models.Users.compare(attempted, password, salt)
-    })
-    .then((data) => {
+      // console.log('data', data);
       if(data) {
-        res.set('location', '/signup')
+        // res.set('location', '/signup')
+        res.redirect('/signup')
       } else {
+        // console.log('create new user', req.body.username)
         models.Users.create(req.body)
-          .then(res.set('location', '/'))
-          .then(res.status(200).send())
+          // .then(res.set('location', '/'))
+          .then(res.redirect('/'))
           .error(error => {
             console.log('did this post request erro');
             res.status(404).send(error);
@@ -117,19 +121,18 @@ app.post('/login',
   models.Users.get({ username: req.body.username })
     .then((data) => {
       // console.log('test', data)
-      let password = data.password;
-      let salt = data.salt;
-      // console.log(attempted, password, salt);
-      return models.Users.compare(attempted, password, salt)
-    })
-    .then((data) => {
       if(data) {
-        res.set('location', '/')
-        // res.redirect('/')
+        let password = data.password;
+        let salt = data.salt;
+        // console.log(attempted, password, salt);
+        return models.Users.compare(attempted, password, salt)
       } else {
-        res.set('location', '/login')
-        // res.redirect('/login')
+        return false;
       }
+    })
+    .then((check) => {
+      console.log('check: ', check);
+      check ? res.redirect('/') : res.redirect('/login')
     })
     .error(error => {
       res.status(404).send(error);
